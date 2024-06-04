@@ -1,0 +1,34 @@
+server:
+  port: 9000
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username : hanwhee
+    password: 1234
+    virtual-host: /
+
+rabbitmq:
+  exchange:
+    name: agent.test
+  queue:
+    sms-name: msg.sms
+    mms-name: msg.mms
+    rcs-name: msg.rcs
+    kko-name: msg.kko
+
+    fallback:
+      rcs-name: msg.fb.rcs
+      kko-name: msg.fb.kko
+
+  routing:
+    sms-key: agtsms
+    mms-key: agtmms
+    rcs-key: agtrcs
+    kko-key: agtkko
+
+    fallback:
+      rcs-key: agtfbrcs
+      kko-key: msgfbkko
+
