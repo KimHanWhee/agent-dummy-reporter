@@ -2,6 +2,9 @@ package kr.standard.ums.Util;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 public class Util {
@@ -11,4 +14,13 @@ public class Util {
 
         return format.format(calendar.getTime());
     }
+
+    public static String getTimeAfter1Hour() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime oneHourLater = now.plusHours(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        return oneHourLater.atZone(ZoneId.systemDefault()).format(formatter);
+    }
+
 }

@@ -2,6 +2,7 @@ package kr.standard.ums.module;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
+import kr.standard.ums.dto.message.ImageDelivery;
 import kr.standard.ums.dto.message.MessageDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -82,12 +83,46 @@ public class MessageConsumer {
                 .subscribe();
     }
 
+    @RabbitListener(queues = {"${rabbitmq.queue.rcs-file-name}"}, ackMode = "MANUAL")
+    public void fileConsume(Message message, Channel channel) {
+        String msgType = "RCS FILE";
+
+        log.info("텔미 와이와이와이 : {}", message);
+
+        parseImage(message)
+                .flatMap(reportSender::imageSend)
+                .doOnSuccess(isSend -> {
+                    if(isSend) {
+                        log.info("[{}] image msg send Success...", msgType);
+                        consumeAck(message, channel);
+                    } else {
+                        log.error("[{}] image msg send Failed...", msgType);
+                        consumeNack(message, channel);
+                    }
+                }).onErrorResume(e -> {
+                    log.error("[{}] Error Occurred while Send Image Message... : ", msgType, e);
+                    consumeNack(message, channel);
+                    return Mono.empty();
+                })
+                .subscribe();
+    }
+
 
 
     public Mono<MessageDelivery> parseMessage(Message message) {
         try {
             MessageDelivery messageDelivery = new Gson().fromJson(new String(message.getBody()), MessageDelivery.class);
             return Mono.just(messageDelivery);
+        } catch (Exception e) {
+            return Mono.error(new IllegalStateException());
+        }
+    }
+
+    public Mono<ImageDelivery> parseImage(Message message) {
+        try {
+            ImageDelivery imageDelivery = new Gson().fromJson(new String(message.getBody()), ImageDelivery.class);
+            log.info("텔미와이왊ㅇ니ㅗㅎㅇ녀ㅑ햘: {}", imageDelivery.toString());
+            return Mono.just(imageDelivery);
         } catch (Exception e) {
             return Mono.error(new IllegalStateException());
         }

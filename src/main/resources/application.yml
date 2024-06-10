@@ -16,6 +16,7 @@ rabbitmq:
     sms-name: msg.sms
     mms-name: msg.mms
     rcs-name: msg.rcs
+    rcs-file-name: file.rcs
     kko-name: msg.kko
 
     fallback:
@@ -26,6 +27,7 @@ rabbitmq:
     sms-key: agtsms
     mms-key: agtmms
     rcs-key: agtrcs
+    rcs-file-key: agtfilercs
     kko-key: agtkko
 
     fallback:

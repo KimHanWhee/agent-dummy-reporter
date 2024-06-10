@@ -47,6 +47,9 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.queue.rcs-name}")
     private String rcsQueueName;
 
+    @Value("${rabbitmq.queue.rcs-file-name}")
+    private String rcsFileQueueName;
+
     @Value("${rabbitmq.queue.kko-name}")
     private String kkoQueueName;
 
@@ -69,6 +72,9 @@ public class RabbitMqConfig {
 
     @Value("${rabbitmq.routing.rcs-key}")
     private String rcsRoutingKey;
+
+    @Value("${rabbitmq.routing.rcs-file-key}")
+    private String rcsFileRoutingKey;
 
     @Value("${rabbitmq.routing.kko-key}")
     private String kkoRoutingKey;
@@ -98,6 +104,11 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue rcsFileQueue() {
+        return new Queue(rcsFileQueueName);
+    }
+
+    @Bean
     public Queue kkoQueue() {
         return new Queue(kkoQueueName);
     }
@@ -106,6 +117,7 @@ public class RabbitMqConfig {
     public Queue rcsFallbackQueue() {
         return new Queue(rcsFallbackQueue);
     }
+
 
     @Bean
     public Queue kkoFallbackQueue() {
@@ -130,6 +142,11 @@ public class RabbitMqConfig {
     @Bean
     public Binding rcsBinding(Queue rcsQueue, DirectExchange exchange) {
         return BindingBuilder.bind(rcsQueue).to(exchange).with(rcsRoutingKey);
+    }
+
+    @Bean
+    public Binding rcsFileBinding(Queue rcsFileQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(rcsFileQueue).to(exchange).with(rcsFileRoutingKey);
     }
 
     @Bean

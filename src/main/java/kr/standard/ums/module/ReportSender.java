@@ -2,7 +2,9 @@ package kr.standard.ums.module;
 
 import kr.standard.ums.Util.Util;
 import kr.standard.ums.dto.Report.FallbackReportMessage;
+import kr.standard.ums.dto.Report.RcsImageResponse;
 import kr.standard.ums.dto.Report.ReportMessage;
+import kr.standard.ums.dto.message.ImageDelivery;
 import kr.standard.ums.dto.message.MessageDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -19,8 +21,8 @@ public class ReportSender {
 
     @PostConstruct
     public void initReporter() {
-        String reportUrl = "http://192.168.50.24:9913";
-//        String reportUrl = "http://211.238.138.208:9960";
+//        String reportUrl = "http://192.168.50.24:9913";
+        String reportUrl = "http://211.238.138.208:9960";
         webClient = WebClient.create(reportUrl);
     }
 
@@ -34,7 +36,7 @@ public class ReportSender {
                 .toBodilessEntity()
                 .then(Mono.just(true))
                 .onErrorResume(e -> {
-                    log.error("Error Occurred while send report : ", e);
+                    log.error("Send Report Failed...!!! Retry Send Report!");
 
                     return Mono.just(false);
                 });
@@ -51,6 +53,21 @@ public class ReportSender {
                 .then(Mono.just(true))
                 .onErrorResume(e -> {
                     log.error("Error Occurred while send fallback report :", e);
+
+                    return Mono.just(false);
+                });
+    }
+
+    public Mono<Boolean> imageSend(ImageDelivery imageDelivery) {
+        return webClient.post()
+                .uri("/v1/rcs/report/file")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(makeRcsImageReportMessage(imageDelivery)), RcsImageResponse.class)
+                .retrieve()
+                .toBodilessEntity()
+                .then(Mono.just(true))
+                .onErrorResume(e -> {
+                    log.error("Error Occurred while send RCS FILE report : ", e);
 
                     return Mono.just(false);
                 });
@@ -83,4 +100,15 @@ public class ReportSender {
                 .fbServiceProvider("SKT")
                 .build();
     }
+
+   public RcsImageResponse makeRcsImageReportMessage(ImageDelivery imageDelivery) {
+        return RcsImageResponse.builder()
+                .chatbotId(imageDelivery.getChatbotId())
+                .fileId(imageDelivery.getFileId())
+                .userCode(imageDelivery.getUserCode())
+                .expireTime(Util.getTimeAfter1Hour())
+                .result("-100")
+                .resultMessage("등록 성공")
+                .build();
+   }
 }
