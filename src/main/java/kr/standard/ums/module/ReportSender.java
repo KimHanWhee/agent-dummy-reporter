@@ -21,8 +21,8 @@ public class ReportSender {
 
     @PostConstruct
     public void initReporter() {
-//        String reportUrl = "http://192.168.50.24:9913";
-        String reportUrl = "http://211.238.138.208:9960";
+        String reportUrl = "http://192.168.50.24:9913";
+//        String reportUrl = "http://211.238.138.208:9960";
         webClient = WebClient.create(reportUrl);
     }
 

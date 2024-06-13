@@ -87,8 +87,6 @@ public class MessageConsumer {
     public void fileConsume(Message message, Channel channel) {
         String msgType = "RCS FILE";
 
-        log.info("텔미 와이와이와이 : {}", message);
-
         parseImage(message)
                 .flatMap(reportSender::imageSend)
                 .doOnSuccess(isSend -> {
@@ -121,7 +119,6 @@ public class MessageConsumer {
     public Mono<ImageDelivery> parseImage(Message message) {
         try {
             ImageDelivery imageDelivery = new Gson().fromJson(new String(message.getBody()), ImageDelivery.class);
-            log.info("텔미와이왊ㅇ니ㅗㅎㅇ녀ㅑ햘: {}", imageDelivery.toString());
             return Mono.just(imageDelivery);
         } catch (Exception e) {
             return Mono.error(new IllegalStateException());
