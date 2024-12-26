@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;  
+import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
@@ -21,8 +21,8 @@ public class ReportSender {
 
     @PostConstruct
     public void initReporter() {
-        String reportUrl = "http://192.168.50.24:9913";
-//        String reportUrl = "http://211.238.138.208:9960";
+        String reportUrl = "http://192.168.50.24:9006";
+//        String reportUrl = "http://211.238.138.208:7013";
         webClient = WebClient.create(reportUrl);
     }
 
@@ -74,12 +74,24 @@ public class ReportSender {
     }
 
     public ReportMessage makeReportMessage(MessageDelivery messageDelivery) {
+        String resultCode = "-100";
+        switch (messageDelivery.getChannel().toUpperCase()) {
+            case "RCS":
+                resultCode = "50003";
+                break;
+            case "KKO":
+                resultCode = "1234";
+                break;
+            case "MMS":
+            default:
+                break;
+        }
         return ReportMessage.builder()
                 .srcMsgId(messageDelivery.getSrcMsgId())
                 .umsMsgId(messageDelivery.getUmsMsgId())
                 .channel(messageDelivery.getChannel())
                 .serviceProvider("SKT")
-                .resultCode("-100")
+                .resultCode(resultCode)
                 .resultMessage("E_SEND")
                 .pfmRcvDttm(Util.getCurrentTime())
                 .pfmSndDttm(Util.getCurrentTime())
@@ -101,7 +113,7 @@ public class ReportSender {
                 .build();
     }
 
-   public RcsImageResponse makeRcsImageReportMessage(ImageDelivery imageDelivery) {
+    public RcsImageResponse makeRcsImageReportMessage(ImageDelivery imageDelivery) {
         return RcsImageResponse.builder()
                 .chatbotId(imageDelivery.getChatbotId())
                 .fileId(imageDelivery.getFileId())
@@ -110,5 +122,5 @@ public class ReportSender {
                 .result("-100")
                 .resultMessage("등록 성공")
                 .build();
-   }
+    }
 }
